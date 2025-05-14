@@ -5,10 +5,10 @@
     "baseName": "UserService",
     "buildTool": "maven",
     "cacheProvider": "hazelcast",
-    "clientFramework": "angular",
-    "clientTestFrameworks": [],
-    "clientTheme": "none",
-    "creationTimestamp": 1746986699767,
+    "clientFramework": "no",
+    "clientTestFrameworks": null,
+    "clientTheme": null,
+    "creationTimestamp": 1747217947468,
     "databaseType": "sql",
     "devDatabaseType": "postgresql",
     "enableHibernateCache": true,
@@ -24,12 +24,13 @@
     "packageName": "com.universite.myapp",
     "prodDatabaseType": "postgresql",
     "reactive": false,
-    "serverPort": "8081",
+    "serverPort": 8081,
     "serviceDiscoveryType": "eureka",
+    "skipClient": true,
     "skipCommitHook": true,
     "skipUserManagement": true,
     "syncUserWithIdp": true,
     "testFrameworks": [],
-    "withAdminUi": false
+    "withAdminUi": null
   }
 }
