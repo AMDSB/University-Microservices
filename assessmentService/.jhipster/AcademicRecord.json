@@ -1,0 +1,30 @@
+{
+  "annotations": {
+    "changelogDate": "20250516133756"
+  },
+  "applications": ["assessmentService"],
+  "clientRootFolder": "assessmentservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idAcademicRecord",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "moyenne",
+      "fieldType": "Float"
+    },
+    {
+      "fieldName": "mention",
+      "fieldType": "String"
+    }
+  ],
+  "microserviceName": "assessmentservice",
+  "name": "AcademicRecord",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

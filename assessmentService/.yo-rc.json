@@ -1,0 +1,25 @@
+{
+  "generator-jhipster": {
+    "applicationIndex": 5,
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "assessmentService",
+    "buildTool": "maven",
+    "creationTimestamp": 1747403157980,
+    "devDatabaseType": "postgresql",
+    "entities": ["Grade", "Exam", "AcademicRecord"],
+    "jhipsterVersion": "8.9.0",
+    "jwtSecretKey": "NmY4ZDI0OGFiYjQzZGY2MzUxM2NhNzI5YmNmMGI5MTBhMTFiOGMyMTdiMmExNmZmMjc2ZjAyMzc1MDQzYzlmNjg2YjAyMGUzMmNkZGZhNDMxODhlZGIzYjJkMDE0YTAyMTgxNTc3ZTBlZTNjM2U4ZTRhYTMyOGEyNjM5ZTQ5YjE=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1747402676000,
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.universite.assessment",
+    "prodDatabaseType": "postgresql",
+    "serverPort": "8085",
+    "serviceDiscoveryType": "eureka",
+    "skipClient": true,
+    "skipCommitHook": true,
+    "skipUserManagement": true
+  }
+}
