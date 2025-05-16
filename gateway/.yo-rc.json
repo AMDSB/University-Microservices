@@ -1,0 +1,26 @@
+{
+  "generator-jhipster": {
+    "applicationIndex": 0,
+    "applicationType": "gateway",
+    "authenticationType": "oauth2",
+    "baseName": "gateway",
+    "buildTool": "maven",
+    "clientFramework": "angular",
+    "creationTimestamp": 1747403157978,
+    "devDatabaseType": "postgresql",
+    "devServerPort": 4200,
+    "entities": [],
+    "jhipsterVersion": "8.9.0",
+    "jwtSecretKey": "MTE2MGU4ZDAyZDQ1ZWM0ODcxOTZkOTc1MDhlM2JmYzNlMjBhYTVkYTdkMDA2YTI5MmE1NmJmMTkxNzdlYWNlODU1ZWY5M2MyNDk5MDg1NmNlZDZlZWRjYjIzOGRiY2FkMzg5Y2FmMDUzMTBkMDUzMjc2OWEzM2QxODlhODcyODg=",
+    "languages": ["en"],
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.universite.gateway",
+    "prodDatabaseType": "postgresql",
+    "reactive": true,
+    "serverPort": "8090",
+    "serviceDiscoveryType": "eureka",
+    "skipCommitHook": true,
+    "skipUserManagement": true
+  }
+}
