@@ -1,0 +1,33 @@
+{
+  "annotations": {
+    "changelogDate": "20250516133756"
+  },
+  "applications": ["teacherService"],
+  "clientRootFolder": "teacherservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idTeachingAssignment",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "academicYear",
+      "fieldType": "Integer"
+    }
+  ],
+  "microserviceName": "teacherservice",
+  "name": "TeachingAssignment",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "teacher",
+      "relationshipName": "idTeacher",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}
