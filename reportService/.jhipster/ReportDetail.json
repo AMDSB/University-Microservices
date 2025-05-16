@@ -1,0 +1,46 @@
+{
+  "annotations": {
+    "changelogDate": "20250516133656"
+  },
+  "applications": ["reportService"],
+  "clientRootFolder": "reportservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "moduleName",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "numberOfStudents",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "numberPassed",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "numberFailed",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "averageGrade",
+      "fieldType": "Float"
+    }
+  ],
+  "microserviceName": "reportservice",
+  "name": "ReportDetail",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "report",
+      "relationshipName": "report",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}
