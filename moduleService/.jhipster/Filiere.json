@@ -1,0 +1,49 @@
+{
+  "annotations": {
+    "changelogDate": "20250516133656"
+  },
+  "applications": ["moduleService"],
+  "clientRootFolder": "moduleservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idFiliere",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "microserviceName": "moduleservice",
+  "name": "Filiere",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "module",
+      "relationshipName": "idModule",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "departement",
+      "relationshipName": "idDepartement",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "specialisation",
+      "relationshipName": "idSpecialisation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

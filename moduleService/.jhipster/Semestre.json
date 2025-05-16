@@ -1,0 +1,41 @@
+{
+  "annotations": {
+    "changelogDate": "20250516133756"
+  },
+  "applications": ["moduleService"],
+  "clientRootFolder": "moduleservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idSemestre",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "startedAt",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "endedAt",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    }
+  ],
+  "microserviceName": "moduleservice",
+  "name": "Semestre",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "module",
+      "relationshipName": "idModule",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

@@ -1,0 +1,30 @@
+{
+  "annotations": {
+    "changelogDate": "20250516133956"
+  },
+  "applications": ["moduleService"],
+  "clientRootFolder": "moduleservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idDepartement",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "microserviceName": "moduleservice",
+  "name": "Departement",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}
