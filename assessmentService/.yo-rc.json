@@ -5,7 +5,6 @@
     "authenticationType": "oauth2",
     "baseName": "assessmentService",
     "buildTool": "maven",
-    "creationTimestamp": 1747403157980,
     "devDatabaseType": "postgresql",
     "entities": ["Grade", "Exam", "AcademicRecord"],
     "jhipsterVersion": "8.9.0",
