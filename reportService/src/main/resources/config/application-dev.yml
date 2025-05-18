@@ -18,7 +18,7 @@ logging:
     ROOT: DEBUG
     tech.jhipster: DEBUG
     org.hibernate.SQL: DEBUG
-    com.universite.report: DEBUG
+    com.universite: DEBUG
 
 eureka:
   instance:

@@ -2,7 +2,8 @@ application {
   config {
     baseName userService
     applicationType microservice
-    packageName com.universite.user
+    packageName com.universite
+    skipClient true
     authenticationType oauth2
     prodDatabaseType postgresql
     devDatabaseType postgresql
@@ -17,7 +18,8 @@ application {
   config {
     baseName studentService
     applicationType microservice
-    packageName com.universite.student
+    packageName com.universite
+    skipClient true
     authenticationType oauth2
     prodDatabaseType postgresql
     devDatabaseType postgresql
@@ -32,7 +34,8 @@ application {
   config {
     baseName teacherService
     applicationType microservice
-    packageName com.universite.teacher
+    packageName com.universite
+    skipClient true
     authenticationType oauth2
     prodDatabaseType postgresql
     devDatabaseType postgresql
@@ -47,7 +50,8 @@ application {
   config {
     baseName moduleService
     applicationType microservice
-    packageName com.universite.module
+    packageName com.universite
+    skipClient true
     authenticationType oauth2
     prodDatabaseType postgresql
     devDatabaseType postgresql
@@ -62,7 +66,8 @@ application {
   config {
     baseName assessmentService
     applicationType microservice
-    packageName com.universite.assessment
+    packageName com.universite
+    skipClient true
     authenticationType oauth2
     prodDatabaseType postgresql
     devDatabaseType postgresql
@@ -77,7 +82,8 @@ application {
   config {
     baseName reportService
     applicationType microservice
-    packageName com.universite.report
+    packageName com.universite
+    skipClient true
     authenticationType oauth2
     prodDatabaseType postgresql
     devDatabaseType postgresql
@@ -92,7 +98,8 @@ application {
   config {
     baseName gateway
     applicationType gateway
-    packageName com.universite.gateway
+    packageName com.universite
+    skipClient true
     authenticationType oauth2
     prodDatabaseType postgresql
     devDatabaseType postgresql
