@@ -21,7 +21,8 @@ import tech.jhipster.config.JHipsterConstants;
 
 @SpringBootApplication
 @EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class })
-public class GatewayApp {
+public class
+GatewayApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(GatewayApp.class);
 
