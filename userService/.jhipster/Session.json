@@ -1,0 +1,53 @@
+{
+  "annotations": {},
+  "applications": ["userService"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idSession",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "token",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "device",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "ipAddress",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "createDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "expireDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "isActive",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "idUser",
+      "fieldType": "Integer"
+    }
+  ],
+  "microserviceName": "userservice",
+  "name": "Session",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "user",
+      "relationshipName": "idUser",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceClass"
+}

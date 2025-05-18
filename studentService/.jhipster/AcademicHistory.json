@@ -1,0 +1,32 @@
+{
+  "annotations": {},
+  "applications": ["studentService"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idAcademicHistory",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "academicYear",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "cumulatedGpa",
+      "fieldType": "Float"
+    }
+  ],
+  "microserviceName": "studentservice",
+  "name": "AcademicHistory",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "student",
+      "relationshipName": "idStudent",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceClass"
+}
