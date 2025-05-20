@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+
 /**
  * A DTO for the {@link com.universite.domain.ReportDetail} entity.
  */
