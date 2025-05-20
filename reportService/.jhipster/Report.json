@@ -1,0 +1,26 @@
+{
+  "annotations": {
+    "changelogDate": "20250518173752"
+  },
+  "applications": ["reportService"],
+  "clientRootFolder": "reportservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idReport",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "tauxReussite",
+      "fieldType": "Double"
+    }
+  ],
+  "microserviceName": "reportservice",
+  "name": "Report",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

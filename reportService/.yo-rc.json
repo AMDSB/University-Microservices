@@ -1,0 +1,24 @@
+{
+  "generator-jhipster": {
+    "applicationIndex": 6,
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "reportService",
+    "buildTool": "maven",
+    "devDatabaseType": "postgresql",
+    "entities": ["Report", "ReportDetail"],
+    "jhipsterVersion": "8.9.0",
+    "jwtSecretKey": "MTVmMTFkZTE1YjMxZDM0OTI5NDg0YmRjNTc1MDJlNDNhMWQ0NjdiZTNlODMyMjFiMTViOWQ2NDIwZmM0ZGE1NGRlMDc0ZmNiNmJlMjQ5OGZjMzQ4MmRlZWJiY2ViZWIxN2YyOGM4ZGJhM2IwOWU3M2NhNTQ2NzhmYzBkNGY0ZTM=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1747589932000,
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.universite",
+    "prodDatabaseType": "postgresql",
+    "serverPort": "8086",
+    "serviceDiscoveryType": "eureka",
+    "skipClient": true,
+    "skipCommitHook": true,
+    "skipUserManagement": true
+  }
+}
