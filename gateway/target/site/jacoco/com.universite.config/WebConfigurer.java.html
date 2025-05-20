@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebConfigurer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Gateway</a> &gt; <a href="index.source.html" class="el_package">com.universite.config</a> &gt; <span class="el_source">WebConfigurer.java</span></div><h1>WebConfigurer.java</h1><pre class="source lang-java linenums">package com.universite.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.universite.web.rest.errors.ExceptionTranslator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.data.web.ReactivePageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.ReactiveSortHandlerMethodArgumentResolver;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
+import org.springframework.web.server.WebExceptionHandler;
+import tech.jhipster.config.JHipsterProperties;
+import tech.jhipster.web.rest.errors.ReactiveWebExceptionHandler;
+
+/**
+ * Configuration of web application with Servlet 3.0 APIs.
+ */
+@Configuration
+public class WebConfigurer implements WebFluxConfigurer {
+
+<span class="nc" id="L28">    private static final Logger LOG = LoggerFactory.getLogger(WebConfigurer.class);</span>
+
+    private final JHipsterProperties jHipsterProperties;
+
+<span class="nc" id="L32">    public WebConfigurer(JHipsterProperties jHipsterProperties) {</span>
+<span class="nc" id="L33">        this.jHipsterProperties = jHipsterProperties;</span>
+<span class="nc" id="L34">    }</span>
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+<span class="nc" id="L38">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="nc" id="L39">        CorsConfiguration config = jHipsterProperties.getCors();</span>
+<span class="nc bnc" id="L40" title="All 4 branches missed.">        if (!CollectionUtils.isEmpty(config.getAllowedOrigins()) || !CollectionUtils.isEmpty(config.getAllowedOriginPatterns())) {</span>
+<span class="nc" id="L41">            LOG.debug(&quot;Registering CORS filter&quot;);</span>
+<span class="nc" id="L42">            source.registerCorsConfiguration(&quot;/api/**&quot;, config);</span>
+<span class="nc" id="L43">            source.registerCorsConfiguration(&quot;/management/**&quot;, config);</span>
+<span class="nc" id="L44">            source.registerCorsConfiguration(&quot;/v3/api-docs&quot;, config);</span>
+<span class="nc" id="L45">            source.registerCorsConfiguration(&quot;/swagger-ui/**&quot;, config);</span>
+<span class="nc" id="L46">            source.registerCorsConfiguration(&quot;/*/api/**&quot;, config);</span>
+<span class="nc" id="L47">            source.registerCorsConfiguration(&quot;/services/*/api/**&quot;, config);</span>
+<span class="nc" id="L48">            source.registerCorsConfiguration(&quot;/*/management/**&quot;, config);</span>
+        }
+<span class="nc" id="L50">        return source;</span>
+    }
+
+    // TODO: remove when this is supported in spring-boot
+    @Bean
+    HandlerMethodArgumentResolver reactivePageableHandlerMethodArgumentResolver() {
+<span class="nc" id="L56">        return new ReactivePageableHandlerMethodArgumentResolver();</span>
+    }
+
+    // TODO: remove when this is supported in spring-boot
+    @Bean
+    HandlerMethodArgumentResolver reactiveSortHandlerMethodArgumentResolver() {
+<span class="nc" id="L62">        return new ReactiveSortHandlerMethodArgumentResolver();</span>
+    }
+
+    @Bean
+    @Order(-2) // The handler must have precedence over WebFluxResponseStatusExceptionHandler and Spring Boot's ErrorWebExceptionHandler
+    public WebExceptionHandler problemExceptionHandler(ObjectMapper mapper, ExceptionTranslator problemHandling) {
+<span class="nc" id="L68">        return new ReactiveWebExceptionHandler(problemHandling, mapper);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

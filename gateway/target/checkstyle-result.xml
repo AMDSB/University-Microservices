@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.21.2">
+<file name="C:\Users\AichaaDia\Documents\MES_DOCS\ING2_INFO\ARICHITECTURE_LOGICIELLE\PROJET\gestionUniversitaire\University-Microservices\gateway\pom.xml">
+</file>
+<file name="C:\Users\AichaaDia\Documents\MES_DOCS\ING2_INFO\ARICHITECTURE_LOGICIELLE\PROJET\gestionUniversitaire\University-Microservices\gateway\README.md">
+</file>
+<file name="C:\Users\AichaaDia\Documents\MES_DOCS\ING2_INFO\ARICHITECTURE_LOGICIELLE\PROJET\gestionUniversitaire\University-Microservices\gateway\src\main\resources\i18n\messages.properties">
+</file>
+<file name="C:\Users\AichaaDia\Documents\MES_DOCS\ING2_INFO\ARICHITECTURE_LOGICIELLE\PROJET\gestionUniversitaire\University-Microservices\gateway\src\main\resources\i18n\messages_en.properties">
+</file>
+<file name="C:\Users\AichaaDia\Documents\MES_DOCS\ING2_INFO\ARICHITECTURE_LOGICIELLE\PROJET\gestionUniversitaire\University-Microservices\gateway\src\test\resources\junit-platform.properties">
+</file>
+</checkstyle>

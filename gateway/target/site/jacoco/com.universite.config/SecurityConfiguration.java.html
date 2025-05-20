@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Gateway</a> &gt; <a href="index.source.html" class="el_package">com.universite.config</a> &gt; <span class="el_source">SecurityConfiguration.java</span></div><h1>SecurityConfiguration.java</h1><pre class="source lang-java linenums">package com.universite.config;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.universite.security.AuthoritiesConstants;
+import com.universite.security.SecurityUtils;
+import com.universite.security.oauth2.AudienceValidator;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter.Mode;
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.jhipster.config.JHipsterProperties;
+import tech.jhipster.web.filter.reactive.CookieCsrfFilter;
+
+@Configuration
+@EnableReactiveMethodSecurity
+public class SecurityConfiguration {
+
+    private final JHipsterProperties jHipsterProperties;
+
+    @Value(&quot;${spring.security.oauth2.client.provider.oidc.issuer-uri}&quot;)
+    private String issuerUri;
+
+    private final ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+    // See https://github.com/jhipster/generator-jhipster/issues/18868
+    // We don't use a distributed cache or the user selected cache implementation here on purpose
+<span class="nc" id="L70">    private final Cache&lt;String, Mono&lt;Jwt&gt;&gt; users = Caffeine.newBuilder()</span>
+<span class="nc" id="L71">        .maximumSize(10_000)</span>
+<span class="nc" id="L72">        .expireAfterWrite(Duration.ofHours(1))</span>
+<span class="nc" id="L73">        .recordStats()</span>
+<span class="nc" id="L74">        .build();</span>
+
+<span class="nc" id="L76">    public SecurityConfiguration(ReactiveClientRegistrationRepository clientRegistrationRepository, JHipsterProperties jHipsterProperties) {</span>
+<span class="nc" id="L77">        this.clientRegistrationRepository = clientRegistrationRepository;</span>
+<span class="nc" id="L78">        this.jHipsterProperties = jHipsterProperties;</span>
+<span class="nc" id="L79">    }</span>
+
+    @Bean
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+<span class="nc" id="L83">        http</span>
+<span class="nc" id="L84">            .securityMatcher(</span>
+                new NegatedServerWebExchangeMatcher(
+<span class="nc" id="L86">                    new OrServerWebExchangeMatcher(pathMatchers(&quot;/app/**&quot;, &quot;/i18n/**&quot;, &quot;/content/**&quot;, &quot;/swagger-ui/**&quot;))</span>
+                )
+            )
+<span class="nc" id="L89">            .cors(withDefaults())</span>
+<span class="nc" id="L90">            .csrf(csrf -&gt;</span>
+<span class="nc" id="L91">                csrf</span>
+<span class="nc" id="L92">                    .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())</span>
+                    // See https://stackoverflow.com/q/74447118/65681
+<span class="nc" id="L94">                    .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())</span>
+            )
+            // See https://github.com/spring-projects/spring-security/issues/5766
+<span class="nc" id="L97">            .addFilterAt(new CookieCsrfFilter(), SecurityWebFiltersOrder.REACTOR_CONTEXT)</span>
+<span class="nc" id="L98">            .headers(headers -&gt;</span>
+<span class="nc" id="L99">                headers</span>
+<span class="nc" id="L100">                    .contentSecurityPolicy(csp -&gt; csp.policyDirectives(jHipsterProperties.getSecurity().getContentSecurityPolicy()))</span>
+<span class="nc" id="L101">                    .frameOptions(frameOptions -&gt; frameOptions.mode(Mode.DENY))</span>
+<span class="nc" id="L102">                    .referrerPolicy(referrer -&gt;</span>
+<span class="nc" id="L103">                        referrer.policy(ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)</span>
+                    )
+<span class="nc" id="L105">                    .permissionsPolicy(permissions -&gt;</span>
+<span class="nc" id="L106">                        permissions.policy(</span>
+                            &quot;camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()&quot;
+                        )
+                    )
+            )
+<span class="nc" id="L111">            .authorizeExchange(authz -&gt;</span>
+                // prettier-ignore
+                authz
+<span class="nc" id="L114">                    .pathMatchers(&quot;/api/authenticate&quot;).permitAll()</span>
+<span class="nc" id="L115">                    .pathMatchers(&quot;/api/auth-info&quot;).permitAll()</span>
+<span class="nc" id="L116">                    .pathMatchers(&quot;/api/admin/**&quot;).hasAuthority(AuthoritiesConstants.ADMIN)</span>
+<span class="nc" id="L117">                    .pathMatchers(&quot;/api/**&quot;).authenticated()</span>
+<span class="nc" id="L118">                    .pathMatchers(&quot;/services/*/management/health/readiness&quot;).permitAll()</span>
+<span class="nc" id="L119">                    .pathMatchers(&quot;/services/*/v3/api-docs&quot;).hasAuthority(AuthoritiesConstants.ADMIN)</span>
+<span class="nc" id="L120">                    .pathMatchers(&quot;/services/**&quot;).authenticated()</span>
+<span class="nc" id="L121">                    .pathMatchers(&quot;/v3/api-docs/**&quot;).hasAuthority(AuthoritiesConstants.ADMIN)</span>
+<span class="nc" id="L122">                    .pathMatchers(&quot;/management/health&quot;).permitAll()</span>
+<span class="nc" id="L123">                    .pathMatchers(&quot;/management/health/**&quot;).permitAll()</span>
+<span class="nc" id="L124">                    .pathMatchers(&quot;/management/info&quot;).permitAll()</span>
+<span class="nc" id="L125">                    .pathMatchers(&quot;/management/prometheus&quot;).permitAll()</span>
+<span class="nc" id="L126">                    .pathMatchers(&quot;/management/**&quot;).hasAuthority(AuthoritiesConstants.ADMIN)</span>
+            )
+<span class="nc" id="L128">            .oauth2Login(oauth2 -&gt; oauth2.authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository)))</span>
+<span class="nc" id="L129">            .oauth2Client(withDefaults())</span>
+<span class="nc" id="L130">            .oauth2ResourceServer(oauth2 -&gt; oauth2.jwt(jwt -&gt; jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));</span>
+<span class="nc" id="L131">        return http.build();</span>
+    }
+
+    private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver(
+        ReactiveClientRegistrationRepository clientRegistrationRepository
+    ) {
+<span class="nc" id="L137">        DefaultServerOAuth2AuthorizationRequestResolver authorizationRequestResolver = new DefaultServerOAuth2AuthorizationRequestResolver(</span>
+            clientRegistrationRepository
+        );
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (this.issuerUri.contains(&quot;auth0.com&quot;)) {</span>
+<span class="nc" id="L141">            authorizationRequestResolver.setAuthorizationRequestCustomizer(authorizationRequestCustomizer());</span>
+        }
+<span class="nc" id="L143">        return authorizationRequestResolver;</span>
+    }
+
+    private Consumer&lt;OAuth2AuthorizationRequest.Builder&gt; authorizationRequestCustomizer() {
+<span class="nc" id="L147">        return customizer -&gt;</span>
+<span class="nc" id="L148">            customizer.authorizationRequestUri(uriBuilder -&gt;</span>
+<span class="nc" id="L149">                uriBuilder.queryParam(&quot;audience&quot;, jHipsterProperties.getSecurity().getOauth2().getAudience()).build()</span>
+            );
+    }
+
+    Converter&lt;Jwt, Mono&lt;AbstractAuthenticationToken&gt;&gt; jwtAuthenticationConverter() {
+<span class="nc" id="L154">        ReactiveJwtAuthenticationConverter jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();</span>
+<span class="nc" id="L155">        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(</span>
+<span class="nc" id="L156">            new Converter&lt;Jwt, Flux&lt;GrantedAuthority&gt;&gt;() {</span>
+                @Override
+                public Flux&lt;GrantedAuthority&gt; convert(Jwt jwt) {
+<span class="nc" id="L159">                    return Flux.fromIterable(SecurityUtils.extractAuthorityFromClaims(jwt.getClaims()));</span>
+                }
+            }
+        );
+<span class="nc" id="L163">        jwtAuthenticationConverter.setPrincipalClaimName(PREFERRED_USERNAME);</span>
+<span class="nc" id="L164">        return jwtAuthenticationConverter;</span>
+    }
+
+    /**
+     * Map authorities from &quot;groups&quot; or &quot;roles&quot; claim in ID Token.
+     *
+     * @return a {@link ReactiveOAuth2UserService} that has the groups from the IdP.
+     */
+    @Bean
+    public ReactiveOAuth2UserService&lt;OidcUserRequest, OidcUser&gt; oidcUserService() {
+<span class="nc" id="L174">        final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();</span>
+
+<span class="nc" id="L176">        return userRequest -&gt; {</span>
+            // Delegate to the default implementation for loading a user
+<span class="nc" id="L178">            return delegate</span>
+<span class="nc" id="L179">                .loadUser(userRequest)</span>
+<span class="nc" id="L180">                .map(user -&gt; {</span>
+<span class="nc" id="L181">                    Set&lt;GrantedAuthority&gt; mappedAuthorities = new HashSet&lt;&gt;();</span>
+
+<span class="nc" id="L183">                    user</span>
+<span class="nc" id="L184">                        .getAuthorities()</span>
+<span class="nc" id="L185">                        .forEach(authority -&gt; {</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                            if (authority instanceof OidcUserAuthority) {</span>
+<span class="nc" id="L187">                                OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;</span>
+<span class="nc" id="L188">                                mappedAuthorities.addAll(</span>
+<span class="nc" id="L189">                                    SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims())</span>
+                                );
+                            }
+<span class="nc" id="L192">                        });</span>
+
+<span class="nc" id="L194">                    return new DefaultOidcUser(mappedAuthorities, user.getIdToken(), user.getUserInfo(), PREFERRED_USERNAME);</span>
+                });
+        };
+    }
+
+    @Bean
+    ReactiveJwtDecoder jwtDecoder(ReactiveClientRegistrationRepository registrations) {
+<span class="nc" id="L201">        Mono&lt;ClientRegistration&gt; clientRegistration = registrations.findByRegistrationId(&quot;oidc&quot;);</span>
+
+<span class="nc" id="L203">        return clientRegistration</span>
+<span class="nc" id="L204">            .map(oidc -&gt;</span>
+<span class="nc" id="L205">                createJwtDecoder(</span>
+<span class="nc" id="L206">                    oidc.getProviderDetails().getIssuerUri(),</span>
+<span class="nc" id="L207">                    oidc.getProviderDetails().getJwkSetUri(),</span>
+<span class="nc" id="L208">                    oidc.getProviderDetails().getUserInfoEndpoint().getUri()</span>
+                )
+            )
+<span class="nc" id="L211">            .block();</span>
+    }
+
+    private ReactiveJwtDecoder createJwtDecoder(String issuerUri, String jwkSetUri, String userInfoUri) {
+<span class="nc" id="L215">        NimbusReactiveJwtDecoder jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUri);</span>
+<span class="nc" id="L216">        OAuth2TokenValidator&lt;Jwt&gt; audienceValidator = new AudienceValidator(jHipsterProperties.getSecurity().getOauth2().getAudience());</span>
+<span class="nc" id="L217">        OAuth2TokenValidator&lt;Jwt&gt; withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);</span>
+<span class="nc" id="L218">        OAuth2TokenValidator&lt;Jwt&gt; withAudience = new DelegatingOAuth2TokenValidator&lt;&gt;(withIssuer, audienceValidator);</span>
+
+<span class="nc" id="L220">        jwtDecoder.setJwtValidator(withAudience);</span>
+
+<span class="nc" id="L222">        return new ReactiveJwtDecoder() {</span>
+            @Override
+            public Mono&lt;Jwt&gt; decode(String token) throws JwtException {
+<span class="nc" id="L225">                return jwtDecoder.decode(token).flatMap(jwt -&gt; enrich(token, jwt));</span>
+            }
+
+            private Mono&lt;Jwt&gt; enrich(String token, Jwt jwt) {
+                // Only look up user information if identity claims are missing
+<span class="nc bnc" id="L230" title="All 4 branches missed.">                if (jwt.hasClaim(&quot;given_name&quot;) &amp;&amp; jwt.hasClaim(&quot;family_name&quot;)) {</span>
+<span class="nc" id="L231">                    return Mono.just(jwt);</span>
+                }
+                // Get user info from `users` cache if present
+<span class="nc" id="L234">                return Optional.ofNullable(users.getIfPresent(jwt.getSubject())).orElseGet(() -&gt; // Retrieve user info from OAuth provider if not already loaded</span>
+<span class="nc" id="L235">                    WebClient.create()</span>
+<span class="nc" id="L236">                        .get()</span>
+<span class="nc" id="L237">                        .uri(userInfoUri)</span>
+<span class="nc" id="L238">                        .headers(headers -&gt; headers.setBearerAuth(token))</span>
+<span class="nc" id="L239">                        .retrieve()</span>
+<span class="nc" id="L240">                        .bodyToMono(new ParameterizedTypeReference&lt;Map&lt;String, Object&gt;&gt;() {})</span>
+<span class="nc" id="L241">                        .map(userInfo -&gt;</span>
+<span class="nc" id="L242">                            Jwt.withTokenValue(jwt.getTokenValue())</span>
+<span class="nc" id="L243">                                .subject(jwt.getSubject())</span>
+<span class="nc" id="L244">                                .audience(jwt.getAudience())</span>
+<span class="nc" id="L245">                                .headers(headers -&gt; headers.putAll(jwt.getHeaders()))</span>
+<span class="nc" id="L246">                                .claims(claims -&gt; {</span>
+<span class="nc" id="L247">                                    String username = userInfo.get(&quot;preferred_username&quot;).toString();</span>
+                                    // special handling for Auth0
+<span class="nc bnc" id="L249" title="All 4 branches missed.">                                    if (userInfo.get(&quot;sub&quot;).toString().contains(&quot;|&quot;) &amp;&amp; username.contains(&quot;@&quot;)) {</span>
+<span class="nc" id="L250">                                        userInfo.put(&quot;email&quot;, username);</span>
+                                    }
+                                    // Allow full name in a name claim - happens with Auth0
+<span class="nc bnc" id="L253" title="All 2 branches missed.">                                    if (userInfo.get(&quot;name&quot;) != null) {</span>
+<span class="nc" id="L254">                                        String[] name = userInfo.get(&quot;name&quot;).toString().split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">                                        if (name.length &gt; 0) {</span>
+<span class="nc" id="L256">                                            userInfo.put(&quot;given_name&quot;, name[0]);</span>
+<span class="nc" id="L257">                                            userInfo.put(&quot;family_name&quot;, String.join(&quot; &quot;, Arrays.copyOfRange(name, 1, name.length)));</span>
+                                        }
+                                    }
+<span class="nc" id="L260">                                    claims.putAll(userInfo);</span>
+<span class="nc" id="L261">                                })</span>
+<span class="nc" id="L262">                                .claims(claims -&gt; claims.putAll(jwt.getClaims()))</span>
+<span class="nc" id="L263">                                .build()</span>
+                        )
+                        // Put user info into the `users` cache
+<span class="nc" id="L266">                        .doOnNext(newJwt -&gt; users.put(jwt.getSubject(), Mono.just(newJwt)))</span>
+                );
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

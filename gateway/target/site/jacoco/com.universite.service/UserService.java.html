@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Gateway</a> &gt; <a href="index.source.html" class="el_package">com.universite.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.universite.service;
+
+import com.universite.config.Constants;
+import com.universite.domain.Authority;
+import com.universite.domain.User;
+import com.universite.repository.AuthorityRepository;
+import com.universite.repository.UserRepository;
+import com.universite.security.SecurityUtils;
+import com.universite.service.dto.AdminUserDTO;
+import com.universite.service.dto.UserDTO;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+/**
+ * Service class for managing users.
+ */
+@Service
+public class UserService {
+
+<span class="nc" id="L32">    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);</span>
+
+    private final UserRepository userRepository;
+
+    private final AuthorityRepository authorityRepository;
+
+<span class="nc" id="L38">    public UserService(UserRepository userRepository, AuthorityRepository authorityRepository) {</span>
+<span class="nc" id="L39">        this.userRepository = userRepository;</span>
+<span class="nc" id="L40">        this.authorityRepository = authorityRepository;</span>
+<span class="nc" id="L41">    }</span>
+
+    /**
+     * Update basic information (first name, last name, email, language) for the current user.
+     *
+     * @param firstName first name of user.
+     * @param lastName  last name of user.
+     * @param email     email id of user.
+     * @param langKey   language key.
+     * @param imageUrl  image URL of user.
+     * @return a completed {@link Mono}.
+     */
+    @Transactional
+    public Mono&lt;Void&gt; updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+<span class="nc" id="L55">        return SecurityUtils.getCurrentUserLogin()</span>
+<span class="nc" id="L56">            .flatMap(userRepository::findOneByLogin)</span>
+<span class="nc" id="L57">            .flatMap(user -&gt; {</span>
+<span class="nc" id="L58">                user.setFirstName(firstName);</span>
+<span class="nc" id="L59">                user.setLastName(lastName);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                if (email != null) {</span>
+<span class="nc" id="L61">                    user.setEmail(email.toLowerCase());</span>
+                }
+<span class="nc" id="L63">                user.setLangKey(langKey);</span>
+<span class="nc" id="L64">                user.setImageUrl(imageUrl);</span>
+<span class="nc" id="L65">                return saveUser(user);</span>
+            })
+<span class="nc" id="L67">            .doOnNext(user -&gt; LOG.debug(&quot;Changed Information for User: {}&quot;, user))</span>
+<span class="nc" id="L68">            .then();</span>
+    }
+
+    @Transactional
+    public Mono&lt;User&gt; saveUser(User user) {
+<span class="nc" id="L73">        return saveUser(user, false);</span>
+    }
+
+    @Transactional
+    public Mono&lt;User&gt; saveUser(User user, boolean forceCreate) {
+<span class="nc" id="L78">        return SecurityUtils.getCurrentUserLogin()</span>
+<span class="nc" id="L79">            .switchIfEmpty(Mono.just(Constants.SYSTEM))</span>
+<span class="nc" id="L80">            .flatMap(login -&gt; {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                if (user.getCreatedBy() == null) {</span>
+<span class="nc" id="L82">                    user.setCreatedBy(login);</span>
+                }
+<span class="nc" id="L84">                user.setLastModifiedBy(login);</span>
+                // Saving the relationship can be done in an entity callback
+                // once https://github.com/spring-projects/spring-data-r2dbc/issues/215 is done
+                Mono&lt;User&gt; persistedUser;
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                if (forceCreate) {</span>
+<span class="nc" id="L89">                    persistedUser = userRepository.create(user);</span>
+                } else {
+<span class="nc" id="L91">                    persistedUser = userRepository.save(user);</span>
+                }
+<span class="nc" id="L93">                return persistedUser.flatMap(savedUser -&gt;</span>
+<span class="nc" id="L94">                    Flux.fromIterable(user.getAuthorities())</span>
+<span class="nc" id="L95">                        .flatMap(authority -&gt; userRepository.saveUserAuthority(savedUser.getId(), authority.getName()))</span>
+<span class="nc" id="L96">                        .then(Mono.just(savedUser))</span>
+                );
+            });
+    }
+
+    @Transactional(readOnly = true)
+    public Flux&lt;AdminUserDTO&gt; getAllManagedUsers(Pageable pageable) {
+<span class="nc" id="L103">        return userRepository.findAllWithAuthorities(pageable).map(AdminUserDTO::new);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Flux&lt;UserDTO&gt; getAllPublicUsers(Pageable pageable) {
+<span class="nc" id="L108">        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Mono&lt;Long&gt; countManagedUsers() {
+<span class="nc" id="L113">        return userRepository.count();</span>
+    }
+
+    @Transactional(readOnly = true)
+    public Mono&lt;User&gt; getUserWithAuthoritiesByLogin(String login) {
+<span class="nc" id="L118">        return userRepository.findOneWithAuthoritiesByLogin(login);</span>
+    }
+
+    /**
+     * Gets a list of all the authorities.
+     * @return a list of all the authorities.
+     */
+    @Transactional(readOnly = true)
+    public Flux&lt;String&gt; getAuthorities() {
+<span class="nc" id="L127">        return authorityRepository.findAll().map(Authority::getName);</span>
+    }
+
+    private Mono&lt;User&gt; syncUserWithIdP(Map&lt;String, Object&gt; details, User user) {
+        // save authorities in to sync user roles/groups between IdP and JHipster's local database
+<span class="nc" id="L132">        Collection&lt;String&gt; userAuthorities = user.getAuthorities().stream().map(Authority::getName).toList();</span>
+
+<span class="nc" id="L134">        return getAuthorities()</span>
+<span class="nc" id="L135">            .collectList()</span>
+<span class="nc" id="L136">            .flatMapMany(dbAuthorities -&gt; {</span>
+<span class="nc" id="L137">                List&lt;Authority&gt; authoritiesToSave = userAuthorities</span>
+<span class="nc" id="L138">                    .stream()</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                    .filter(authority -&gt; !dbAuthorities.contains(authority))</span>
+<span class="nc" id="L140">                    .map(authority -&gt; {</span>
+<span class="nc" id="L141">                        Authority authorityToSave = new Authority();</span>
+<span class="nc" id="L142">                        authorityToSave.setName(authority);</span>
+<span class="nc" id="L143">                        return authorityToSave;</span>
+                    })
+<span class="nc" id="L145">                    .toList();</span>
+<span class="nc" id="L146">                return Flux.fromIterable(authoritiesToSave);</span>
+            })
+<span class="nc" id="L148">            .doOnNext(authority -&gt; LOG.debug(&quot;Saving authority '{}' in local database&quot;, authority))</span>
+<span class="nc" id="L149">            .flatMap(authorityRepository::save)</span>
+<span class="nc" id="L150">            .then(userRepository.findOneByLogin(user.getLogin()))</span>
+<span class="nc" id="L151">            .switchIfEmpty(saveUser(user, true))</span>
+<span class="nc" id="L152">            .flatMap(existingUser -&gt; {</span>
+                // if IdP sends last updated information, use it to determine if an update should happen
+<span class="nc bnc" id="L154" title="All 2 branches missed.">                if (details.get(&quot;updated_at&quot;) != null) {</span>
+<span class="nc" id="L155">                    Instant dbModifiedDate = existingUser.getLastModifiedDate();</span>
+                    Instant idpModifiedDate;
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                    if (details.get(&quot;updated_at&quot;) instanceof Instant) {</span>
+<span class="nc" id="L158">                        idpModifiedDate = (Instant) details.get(&quot;updated_at&quot;);</span>
+                    } else {
+<span class="nc" id="L160">                        idpModifiedDate = Instant.ofEpochSecond((Integer) details.get(&quot;updated_at&quot;));</span>
+                    }
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                    if (idpModifiedDate.isAfter(dbModifiedDate)) {</span>
+<span class="nc" id="L163">                        LOG.debug(&quot;Updating user '{}' in local database&quot;, user.getLogin());</span>
+<span class="nc" id="L164">                        return updateUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getLangKey(), user.getImageUrl());</span>
+                    }
+<span class="nc" id="L166">                } else {</span>
+<span class="nc" id="L167">                    LOG.debug(&quot;Updating user '{}' in local database&quot;, user.getLogin());</span>
+<span class="nc" id="L168">                    return updateUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getLangKey(), user.getImageUrl());</span>
+                }
+<span class="nc" id="L170">                return Mono.empty();</span>
+            })
+<span class="nc" id="L172">            .thenReturn(user);</span>
+    }
+
+    /**
+     * Returns the user from an OAuth 2.0 login or resource server with JWT.
+     * Synchronizes the user in the local repository.
+     *
+     * @param authToken the authentication token.
+     * @return the user from the authentication.
+     */
+    @Transactional
+    public Mono&lt;AdminUserDTO&gt; getUserFromAuthentication(AbstractAuthenticationToken authToken) {
+        Map&lt;String, Object&gt; attributes;
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (authToken instanceof OAuth2AuthenticationToken) {</span>
+<span class="nc" id="L186">            attributes = ((OAuth2AuthenticationToken) authToken).getPrincipal().getAttributes();</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        } else if (authToken instanceof JwtAuthenticationToken) {</span>
+<span class="nc" id="L188">            attributes = ((JwtAuthenticationToken) authToken).getTokenAttributes();</span>
+        } else {
+<span class="nc" id="L190">            throw new IllegalArgumentException(&quot;AuthenticationToken is not OAuth2 or JWT!&quot;);</span>
+        }
+<span class="nc" id="L192">        User user = getUser(attributes);</span>
+<span class="nc" id="L193">        user.setAuthorities(</span>
+            authToken
+<span class="nc" id="L195">                .getAuthorities()</span>
+<span class="nc" id="L196">                .stream()</span>
+<span class="nc" id="L197">                .map(GrantedAuthority::getAuthority)</span>
+<span class="nc" id="L198">                .map(authority -&gt; {</span>
+<span class="nc" id="L199">                    Authority auth = new Authority();</span>
+<span class="nc" id="L200">                    auth.setName(authority);</span>
+<span class="nc" id="L201">                    return auth;</span>
+                })
+<span class="nc" id="L203">                .collect(Collectors.toSet())</span>
+        );
+
+<span class="nc" id="L206">        return syncUserWithIdP(attributes, user).flatMap(u -&gt; Mono.just(new AdminUserDTO(u)));</span>
+    }
+
+    private static User getUser(Map&lt;String, Object&gt; details) {
+<span class="nc" id="L210">        User user = new User();</span>
+<span class="nc" id="L211">        Boolean activated = Boolean.TRUE;</span>
+<span class="nc" id="L212">        String sub = String.valueOf(details.get(&quot;sub&quot;));</span>
+<span class="nc" id="L213">        String username = null;</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">        if (details.get(&quot;preferred_username&quot;) != null) {</span>
+<span class="nc" id="L215">            username = ((String) details.get(&quot;preferred_username&quot;)).toLowerCase();</span>
+        }
+        // handle resource server JWT, where sub claim is email and uid is ID
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        if (details.get(&quot;uid&quot;) != null) {</span>
+<span class="nc" id="L219">            user.setId((String) details.get(&quot;uid&quot;));</span>
+<span class="nc" id="L220">            user.setLogin(sub);</span>
+        } else {
+<span class="nc" id="L222">            user.setId(sub);</span>
+        }
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        if (username != null) {</span>
+<span class="nc" id="L225">            user.setLogin(username);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        } else if (user.getLogin() == null) {</span>
+<span class="nc" id="L227">            user.setLogin(user.getId());</span>
+        }
+<span class="nc bnc" id="L229" title="All 2 branches missed.">        if (details.get(&quot;given_name&quot;) != null) {</span>
+<span class="nc" id="L230">            user.setFirstName((String) details.get(&quot;given_name&quot;));</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        } else if (details.get(&quot;name&quot;) != null) {</span>
+<span class="nc" id="L232">            user.setFirstName((String) details.get(&quot;name&quot;));</span>
+        }
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (details.get(&quot;family_name&quot;) != null) {</span>
+<span class="nc" id="L235">            user.setLastName((String) details.get(&quot;family_name&quot;));</span>
+        }
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (details.get(&quot;email_verified&quot;) != null) {</span>
+<span class="nc" id="L238">            activated = (Boolean) details.get(&quot;email_verified&quot;);</span>
+        }
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (details.get(&quot;email&quot;) != null) {</span>
+<span class="nc" id="L241">            user.setEmail(((String) details.get(&quot;email&quot;)).toLowerCase());</span>
+<span class="nc bnc" id="L242" title="All 6 branches missed.">        } else if (sub.contains(&quot;|&quot;) &amp;&amp; (username != null &amp;&amp; username.contains(&quot;@&quot;))) {</span>
+            // special handling for Auth0
+<span class="nc" id="L244">            user.setEmail(username);</span>
+        } else {
+<span class="nc" id="L246">            user.setEmail(sub);</span>
+        }
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        if (details.get(&quot;langKey&quot;) != null) {</span>
+<span class="nc" id="L249">            user.setLangKey((String) details.get(&quot;langKey&quot;));</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        } else if (details.get(&quot;locale&quot;) != null) {</span>
+            // trim off country code if it exists
+<span class="nc" id="L252">            String locale = (String) details.get(&quot;locale&quot;);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            if (locale.contains(&quot;_&quot;)) {</span>
+<span class="nc" id="L254">                locale = locale.substring(0, locale.indexOf('_'));</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            } else if (locale.contains(&quot;-&quot;)) {</span>
+<span class="nc" id="L256">                locale = locale.substring(0, locale.indexOf('-'));</span>
+            }
+<span class="nc" id="L258">            user.setLangKey(locale.toLowerCase());</span>
+<span class="nc" id="L259">        } else {</span>
+            // set langKey to default if not specified by IdP
+<span class="nc" id="L261">            user.setLangKey(Constants.DEFAULT_LANGUAGE);</span>
+        }
+<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (details.get(&quot;picture&quot;) != null) {</span>
+<span class="nc" id="L264">            user.setImageUrl((String) details.get(&quot;picture&quot;));</span>
+        }
+<span class="nc" id="L266">        user.setActivated(activated);</span>
+<span class="nc" id="L267">        return user;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

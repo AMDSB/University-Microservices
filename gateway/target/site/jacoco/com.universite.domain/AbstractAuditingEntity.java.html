@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractAuditingEntity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Gateway</a> &gt; <a href="index.source.html" class="el_package">com.universite.domain</a> &gt; <span class="el_source">AbstractAuditingEntity.java</span></div><h1>AbstractAuditingEntity.java</h1><pre class="source lang-java linenums">package com.universite.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.Column;
+import java.io.Serializable;
+import java.time.Instant;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+/**
+ * Base abstract class for entities which will hold definitions for created, last modified, created by,
+ * last modified by attributes.
+ */
+@JsonIgnoreProperties(value = { &quot;createdBy&quot;, &quot;createdDate&quot;, &quot;lastModifiedBy&quot;, &quot;lastModifiedDate&quot; }, allowGetters = true)
+<span class="fc" id="L15">public abstract class AbstractAuditingEntity&lt;T&gt; implements Serializable {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    public abstract T getId();
+
+    @Column(name = &quot;created_by&quot;, nullable = false, length = 50, updatable = false)
+    private String createdBy;
+
+<span class="fc" id="L24">    @CreatedDate</span>
+    @Column(name = &quot;created_date&quot;, updatable = false)
+<span class="fc" id="L26">    private Instant createdDate = Instant.now();</span>
+
+    @Column(name = &quot;last_modified_by&quot;, length = 50)
+    private String lastModifiedBy;
+
+<span class="fc" id="L31">    @LastModifiedDate</span>
+    @Column(name = &quot;last_modified_date&quot;)
+<span class="fc" id="L33">    private Instant lastModifiedDate = Instant.now();</span>
+
+    public String getCreatedBy() {
+<span class="fc" id="L36">        return createdBy;</span>
+    }
+
+    public void setCreatedBy(String createdBy) {
+<span class="fc" id="L40">        this.createdBy = createdBy;</span>
+<span class="fc" id="L41">    }</span>
+
+    public Instant getCreatedDate() {
+<span class="fc" id="L44">        return createdDate;</span>
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+<span class="fc" id="L48">        this.createdDate = createdDate;</span>
+<span class="fc" id="L49">    }</span>
+
+    public String getLastModifiedBy() {
+<span class="fc" id="L52">        return lastModifiedBy;</span>
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+<span class="fc" id="L56">        this.lastModifiedBy = lastModifiedBy;</span>
+<span class="fc" id="L57">    }</span>
+
+    public Instant getLastModifiedDate() {
+<span class="fc" id="L60">        return lastModifiedDate;</span>
+    }
+
+    public void setLastModifiedDate(Instant lastModifiedDate) {
+<span class="fc" id="L64">        this.lastModifiedDate = lastModifiedDate;</span>
+<span class="fc" id="L65">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

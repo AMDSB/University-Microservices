@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRowMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Gateway</a> &gt; <a href="index.source.html" class="el_package">com.universite.repository.rowmapper</a> &gt; <span class="el_source">UserRowMapper.java</span></div><h1>UserRowMapper.java</h1><pre class="source lang-java linenums">package com.universite.repository.rowmapper;
+
+import com.universite.domain.User;
+import io.r2dbc.spi.Row;
+import java.util.function.BiFunction;
+import org.springframework.stereotype.Service;
+
+/**
+ * Converter between {@link Row} to {@link User}, with proper type conversions.
+ */
+@Service
+public class UserRowMapper implements BiFunction&lt;Row, String, User&gt; {
+
+    private final ColumnConverter converter;
+
+<span class="nc" id="L16">    public UserRowMapper(ColumnConverter converter) {</span>
+<span class="nc" id="L17">        this.converter = converter;</span>
+<span class="nc" id="L18">    }</span>
+
+    /**
+     * Take a {@link Row} and a column prefix, and extract all the fields.
+     * @return the {@link User} stored in the database.
+     */
+    @Override
+    public User apply(Row row, String prefix) {
+<span class="nc" id="L26">        User entity = new User();</span>
+<span class="nc" id="L27">        entity.setId(row.get(prefix + &quot;_id&quot;, String.class));</span>
+<span class="nc" id="L28">        entity.setLogin(converter.fromRow(row, prefix + &quot;_login&quot;, String.class));</span>
+<span class="nc" id="L29">        entity.setFirstName(converter.fromRow(row, prefix + &quot;_first_name&quot;, String.class));</span>
+<span class="nc" id="L30">        entity.setLastName(converter.fromRow(row, prefix + &quot;_last_name&quot;, String.class));</span>
+<span class="nc" id="L31">        entity.setEmail(converter.fromRow(row, prefix + &quot;_email&quot;, String.class));</span>
+<span class="nc" id="L32">        entity.setActivated(Boolean.TRUE.equals(converter.fromRow(row, prefix + &quot;_activated&quot;, Boolean.class)));</span>
+<span class="nc" id="L33">        entity.setLangKey(converter.fromRow(row, prefix + &quot;_lang_key&quot;, String.class));</span>
+<span class="nc" id="L34">        entity.setImageUrl(converter.fromRow(row, prefix + &quot;_image_url&quot;, String.class));</span>
+<span class="nc" id="L35">        return entity;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
