@@ -1,0 +1,33 @@
+{
+  "annotations": {},
+  "applications": ["userService"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idAuditLog",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "timeStamp",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "idUser",
+      "fieldType": "Integer"
+    }
+  ],
+  "microserviceName": "userservice",
+  "name": "AuditLog",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "user",
+      "relationshipName": "idUser",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceClass"
+}

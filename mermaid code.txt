@@ -1,0 +1,165 @@
+UserService
+
+classDiagram
+class User {
+  +int idUser
+  +String firstName
+  +String lastName
+  +String email
+  +String phone
+  +String address
+  +Timestamp creationDate
+  +Timestamp lastUpdate
+}
+
+class Session {
+  +int idSession
+  +String token
+  +String device
+  +String ipAddress
+  +Timestamp createdAt
+  +Timestamp expiredAt
+  +boolean isActive
+}
+
+class AuditLog {
+  +int idAuditLog
+  +String timeStamp
+}
+
+User "1" -- "0..*" Session : owns >
+User "1" -- "0..*" AuditLog : logs >
+
+
+
+ StudentService
+
+ classDiagram
+class Student {
+  +int idStudent
+  +String codeStudent
+}
+
+class Enrollement {
+  +int idEnrollement
+  +String status
+}
+
+class AcademicHistory {
+  +int idAcademicHistory
+  +int academicYear
+  +float cumulatedGpa
+}
+
+Student "1" -- "0..*" Enrollement : has >
+Student "1" -- "0..*" AcademicHistory : owns >
+
+
+
+
+TeacherService
+
+classDiagram
+class Teacher {
+  +int idTeacher
+  +String grade
+  +String specialite
+}
+
+class Disponibilite {
+  +int idDisponibilite
+  +Datetime debutDisponibilite
+  +Datetime finDisponibilite
+}
+
+class TeachingAssignment {
+  +int idTeacherAssignment
+  +int academicYear
+}
+
+Teacher "1" -- "0..1" Disponibilite : available >
+Teacher "1" -- "0..*" TeachingAssignment : assigned >
+
+
+
+
+ModuleService
+
+classDiagram
+class Departement {
+  +int idDepartement
+  +String name
+  +String description
+}
+
+class Module {
+  +int idModule
+  +int credit
+  +String name
+}
+
+class Specialisation {
+  +int idSpecialisation
+  +String name
+}
+
+class Filiere {
+  +int idFiliere
+  +String name
+  +String description
+}
+
+class Edt {
+  +int idEdt
+  +String duration
+}
+
+class Semestre {
+  +int idSemestre
+  +String name
+  +String startedAt
+  +String endedAt
+}
+
+Module "1" -- "0..*" Specialisation : contains >
+Module "1" -- "0..*" Filiere : includes >
+Departement "1" -- "0..*" Filiere : manages >
+Filiere "1" -- "0..*" Edt : has >
+Module "1" -- "0..*" Semestre : scheduled >
+
+
+AssessmentService
+
+classDiagram
+class Grade {
+  +int idGrade
+  +int value
+}
+
+class Exam {
+  +int idExam
+  +String type
+}
+
+class AcademicRecord {
+  +int idAcademicRecord
+  +float moyenne
+  +String mention
+}
+
+Grade "1" -- "0..1" Exam : for >
+Grade "1" -- "0..1" AcademicRecord : produces >
+
+
+
+
+ReportService
+
+classDiagram
+class Report {
+  +int idReport
+  +double tauxReussite
+}
+
+Report --> "0..1" Filiere
+Report --> "0..1" Semestre

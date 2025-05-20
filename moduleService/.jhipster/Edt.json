@@ -1,0 +1,33 @@
+{
+  "annotations": {
+    "changelogDate": "20250518174252"
+  },
+  "applications": ["moduleService"],
+  "clientRootFolder": "moduleservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idEdt",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "duration",
+      "fieldType": "String"
+    }
+  ],
+  "microserviceName": "moduleservice",
+  "name": "Edt",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "filiere",
+      "relationshipName": "idFiliere",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

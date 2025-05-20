@@ -1,0 +1,26 @@
+{
+  "annotations": {
+    "changelogDate": "20250518173852"
+  },
+  "applications": ["assessmentService"],
+  "clientRootFolder": "assessmentservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idExam",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "String"
+    }
+  ],
+  "microserviceName": "assessmentservice",
+  "name": "Exam",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

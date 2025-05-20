@@ -1,0 +1,24 @@
+{
+  "generator-jhipster": {
+    "applicationIndex": 4,
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "moduleService",
+    "buildTool": "maven",
+    "devDatabaseType": "postgresql",
+    "entities": ["Module", "Filiere", "Semestre", "Specialisation", "Departement", "Edt"],
+    "jhipsterVersion": "8.9.0",
+    "jwtSecretKey": "MmM4Y2ExMTdkZGQzMmJjMTI0OTgzNDNlZTIyOTI4MzQ1OGQ3YWJiODdkMzk0OTk0MWM5YzZjNDI0ODkzN2ZkNjE0MmViMGFjY2FkZGFmYTI3YjEzYTc2YThjNTFmYjJiM2VmNzIyNTQ5NmEzZWY3MTBmZjBjMjExMzhhY2VlN2Y=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1747590172000,
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.universite",
+    "prodDatabaseType": "postgresql",
+    "serverPort": "8084",
+    "serviceDiscoveryType": "eureka",
+    "skipClient": true,
+    "skipCommitHook": true,
+    "skipUserManagement": true
+  }
+}

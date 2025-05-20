@@ -1,0 +1,30 @@
+{
+  "annotations": {
+    "changelogDate": "20250518173852"
+  },
+  "applications": ["teacherService"],
+  "clientRootFolder": "teacherservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idDisponibilite",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "debutDisponibilite",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "finDisponibilite",
+      "fieldType": "Instant"
+    }
+  ],
+  "microserviceName": "teacherservice",
+  "name": "Disponibilite",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

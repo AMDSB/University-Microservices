@@ -1,0 +1,203 @@
+-- Désactivation des contraintes pour initialisation
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- ====================== USER SERVICE ======================
+CREATE DATABASE IF NOT EXISTS UserService;
+USE UserService;
+
+CREATE TABLE User (
+  idUser INT NOT NULL AUTO_INCREMENT,
+  firstName VARCHAR(45) NOT NULL,
+  lastName VARCHAR(45) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  address VARCHAR(100),
+  creationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  lastUpdate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (idUser),
+  UNIQUE (email),
+  UNIQUE (phone)
+);
+
+CREATE TABLE Session (
+  idSession INT NOT NULL AUTO_INCREMENT,
+  token VARCHAR(100) NOT NULL,
+  device VARCHAR(100),
+  ipAddress VARCHAR(45),
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expiredAt TIMESTAMP,
+  isActive TINYINT DEFAULT 1,
+  idUser INT,
+  PRIMARY KEY (idSession),
+  FOREIGN KEY (idUser) REFERENCES User(idUser)
+);
+
+CREATE TABLE AuditLog (
+  idAuditLog INT NOT NULL AUTO_INCREMENT,
+  timeStamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  idUser INT NOT NULL,
+  PRIMARY KEY (idAuditLog),
+  FOREIGN KEY (idUser) REFERENCES User(idUser)
+);
+
+-- ====================== STUDENT SERVICE ======================
+CREATE DATABASE IF NOT EXISTS StudentService;
+USE StudentService;
+
+CREATE TABLE Student (
+  idStudent INT NOT NULL AUTO_INCREMENT,
+  codeStudent VARCHAR(45) NOT NULL,
+  idUser INT,
+  idFiliere INT,
+  PRIMARY KEY (idStudent)
+);
+
+CREATE TABLE Enrollment (
+  idEnrollment INT NOT NULL AUTO_INCREMENT,
+  status VARCHAR(45),
+  idFiliere INT,
+  idStudent INT,
+  PRIMARY KEY (idEnrollment),
+  FOREIGN KEY (idStudent) REFERENCES Student(idStudent)
+);
+
+CREATE TABLE AcademicHistory (
+  idAcademicHistory INT NOT NULL AUTO_INCREMENT,
+  academicYear YEAR,
+  idStudent INT,
+  cumulatedGpa FLOAT,
+  PRIMARY KEY (idAcademicHistory),
+  FOREIGN KEY (idStudent) REFERENCES Student(idStudent)
+);
+
+-- ====================== TEACHER SERVICE ======================
+CREATE DATABASE IF NOT EXISTS TeacherService;
+USE TeacherService;
+
+CREATE TABLE Disponibilite (
+  idDisponibilite INT NOT NULL AUTO_INCREMENT,
+  debutDisponibilite DATETIME,
+  finDisponibilite DATETIME,
+  PRIMARY KEY (idDisponibilite)
+);
+
+CREATE TABLE Teacher (
+  idTeacher INT NOT NULL AUTO_INCREMENT,
+  grade VARCHAR(45),
+  specialite VARCHAR(45),
+  idUser INT,
+  idDisponibilite INT,
+  PRIMARY KEY (idTeacher),
+  FOREIGN KEY (idDisponibilite) REFERENCES Disponibilite(idDisponibilite)
+);
+
+CREATE TABLE TeachingAssignment (
+  idTeachingAssignment INT NOT NULL AUTO_INCREMENT,
+  academicYear YEAR,
+  idTeacher INT,
+  idModule INT,
+  PRIMARY KEY (idTeachingAssignment),
+  FOREIGN KEY (idTeacher) REFERENCES Teacher(idTeacher)
+);
+
+-- ====================== MODULE SERVICE ======================
+CREATE DATABASE IF NOT EXISTS ModuleService;
+USE ModuleService;
+
+CREATE TABLE Departement (
+  idDepartement INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(100),
+  description TEXT,
+  PRIMARY KEY (idDepartement)
+);
+
+CREATE TABLE Module (
+  idModule INT NOT NULL AUTO_INCREMENT,
+  credit INT,
+  name VARCHAR(100),
+  PRIMARY KEY (idModule)
+);
+
+CREATE TABLE Specialisation (
+  idSpecialisation INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(100),
+  idModule INT,
+  PRIMARY KEY (idSpecialisation),
+  FOREIGN KEY (idModule) REFERENCES Module(idModule)
+);
+
+CREATE TABLE Filiere (
+  idFiliere INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(100),
+  description TEXT,
+  idModule INT,
+  idSpecialisation INT,
+  idDepartement INT,
+  PRIMARY KEY (idFiliere),
+  FOREIGN KEY (idModule) REFERENCES Module(idModule),
+  FOREIGN KEY (idSpecialisation) REFERENCES Specialisation(idSpecialisation),
+  FOREIGN KEY (idDepartement) REFERENCES Departement(idDepartement)
+);
+
+CREATE TABLE Edt (
+  idEdt INT NOT NULL AUTO_INCREMENT,
+  duration VARCHAR(45),
+  idFiliere INT,
+  PRIMARY KEY (idEdt),
+  FOREIGN KEY (idFiliere) REFERENCES Filiere(idFiliere)
+);
+
+CREATE TABLE Semestre (
+  idSemestre INT NOT NULL AUTO_INCREMENT,
+  startedAt DATE,
+  endedAt DATE,
+  name VARCHAR(45),
+  idModule INT,
+  PRIMARY KEY (idSemestre),
+  FOREIGN KEY (idModule) REFERENCES Module(idModule)
+);
+
+-- ====================== ASSESSMENT SERVICE ======================
+CREATE DATABASE IF NOT EXISTS AssessmentService;
+USE AssessmentService;
+
+CREATE TABLE Grade (
+  idGrade INT NOT NULL AUTO_INCREMENT,
+  idEtudiant INT,
+  value FLOAT,
+  PRIMARY KEY (idGrade)
+);
+
+CREATE TABLE Exam (
+  idExam INT NOT NULL AUTO_INCREMENT,
+  type VARCHAR(45),
+  idSemestre INT,
+  idGrade INT,
+  idFiliere INT,
+  PRIMARY KEY (idExam),
+  FOREIGN KEY (idGrade) REFERENCES Grade(idGrade)
+);
+
+CREATE TABLE AcademicRecord (
+  idAcademicRecord INT NOT NULL AUTO_INCREMENT,
+  idEtudiant INT,
+  moyenne FLOAT,
+  mention VARCHAR(45),
+  idGrade INT,
+  PRIMARY KEY (idAcademicRecord),
+  FOREIGN KEY (idGrade) REFERENCES Grade(idGrade)
+);
+
+-- ====================== REPORT SERVICE ======================
+CREATE DATABASE IF NOT EXISTS ReportService;
+USE ReportService;
+
+CREATE TABLE Report (
+  idReport INT NOT NULL AUTO_INCREMENT,
+  idFiliere INT,
+  idSemestre INT,
+  tauxReussite DOUBLE,
+  PRIMARY KEY (idReport)
+);

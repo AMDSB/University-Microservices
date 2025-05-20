@@ -1,0 +1,267 @@
+application {
+  config {
+    baseName userService
+    applicationType microservice
+    packageName com.universite
+    skipClient true
+    authenticationType oauth2
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    serviceDiscoveryType eureka
+    buildTool maven
+    serverPort 8081
+  }
+  entities User, Session, AuditLog
+}
+
+application {
+  config {
+    baseName studentService
+    applicationType microservice
+    packageName com.universite
+    skipClient true
+    authenticationType oauth2
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    serviceDiscoveryType eureka
+    buildTool maven
+    serverPort 8082
+  }
+  entities Student, Enrollment, AcademicHistory
+}
+
+application {
+  config {
+    baseName teacherService
+    applicationType microservice
+    packageName com.universite
+    skipClient true
+    authenticationType oauth2
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    serviceDiscoveryType eureka
+    buildTool maven
+    serverPort 8083
+  }
+  entities Teacher, Disponibilite, TeachingAssignment
+}
+
+application {
+  config {
+    baseName moduleService
+    applicationType microservice
+    packageName com.universite
+    skipClient true
+    authenticationType oauth2
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    serviceDiscoveryType eureka
+    buildTool maven
+    serverPort 8084
+  }
+  entities Module, Filiere, Semestre, Specialisation, Departement, Edt
+}
+
+application {
+  config {
+    baseName assessmentService
+    applicationType microservice
+    packageName com.universite
+    skipClient true
+    authenticationType oauth2
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    serviceDiscoveryType eureka
+    buildTool maven
+    serverPort 8085
+  }
+  entities Grade, Exam, AcademicRecord
+}
+
+application {
+  config {
+    baseName reportService
+    applicationType microservice
+    packageName com.universite
+    skipClient true
+    authenticationType oauth2
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    serviceDiscoveryType eureka
+    buildTool maven
+    serverPort 8086
+  }
+  entities Report, ReportDetail
+}
+
+application {
+  config {
+    baseName gateway
+    applicationType gateway
+    packageName com.universite
+    skipClient true
+    authenticationType oauth2
+    prodDatabaseType postgresql
+    devDatabaseType postgresql
+    serviceDiscoveryType eureka
+    buildTool maven
+    serverPort 8090
+  }
+}
+
+entity User {
+  idUser Integer required,
+  firstName String required,
+  lastName String required,
+  email String required,
+  phone String required,
+  address String,
+  role String,
+  creationDate Instant,
+  lastUpdate Instant
+}
+
+entity Session {
+  idSession Integer required,
+  token String required,
+  device String,
+  ipAddress String,
+  createDate Instant,
+  expireDate Instant,
+  isActive Boolean,
+  idUser Integer
+}
+
+entity AuditLog {
+  idAuditLog Integer required,
+  timeStamp Instant required
+  idUser Integer
+}
+
+entity Student {
+  idStudent Integer required,
+  codeStudent String required
+  idUser Integer
+  idFiliere Integer
+}
+
+entity Enrollment {
+  idEnrollment Integer required,
+  status String
+  idStudent Integer
+  idFiliere Integer
+}
+
+entity AcademicHistory {
+  idAcademicHistory Integer required,
+  academicYear Integer,
+  cumulatedGpa Float
+}
+
+entity Disponibilite {
+  idDisponibilite Integer required,
+  debutDisponibilite Instant,
+  finDisponibilite Instant
+}
+
+entity Teacher {
+  idTeacher Integer required,
+  grade String,
+  specialite String
+}
+
+entity TeachingAssignment {
+  idTeachingAssignment Integer required,
+  academicYear Integer
+}
+
+entity Departement {
+  idDepartement Integer required,
+  name String,
+  description String
+}
+
+entity Module {
+  idModule Integer required,
+  credit Integer,
+  name String
+}
+
+entity Specialisation {
+  idSpecialisation Integer required,
+  name String
+}
+
+entity Filiere {
+  idFiliere Integer required,
+  name String,
+  description String
+}
+
+entity Edt {
+  idEdt Integer required,
+  duration String
+}
+
+entity Semestre {
+  idSemestre Integer required,
+  startedAt LocalDate,
+  endedAt LocalDate,
+  name String
+}
+
+entity Grade {
+  idGrade Integer required,
+  value Float
+}
+
+entity Exam {
+  idExam Integer required,
+  type String
+}
+
+entity AcademicRecord {
+  idAcademicRecord Integer required,
+  moyenne Float,
+  mention String
+}
+
+entity Report {
+  idReport Integer required,
+  tauxReussite Double
+}
+
+entity ReportDetail {
+  moduleName String maxlength(100),
+  numberOfStudents Integer,
+  numberPassed Integer,
+  numberFailed Integer,
+  averageGrade Float
+}
+
+relationship ManyToOne {
+  Session{idUser} to User,
+  AuditLog{idUser} to User,
+  Enrollment{idStudent} to Student,
+  AcademicHistory{idStudent} to Student,
+  Teacher{idDisponibilite} to Disponibilite,
+  TeachingAssignment{idTeacher} to Teacher,
+  Filiere{idModule} to Module,
+  Filiere{idDepartement} to Departement,
+  Filiere{idSpecialisation} to Specialisation,
+  Specialisation{idModule} to Module,
+  Edt{idFiliere} to Filiere,
+  Semestre{idModule} to Module,
+  ReportDetail{report} to Report
+ }
+
+microservice User, Session, AuditLog with userservice
+microservice Student, Enrollment, AcademicHistory with studentservice
+microservice Disponibilite, Teacher, TeachingAssignment with teacherservice
+microservice Departement, Module, Filiere, Specialisation, Edt, Semestre with moduleservice
+microservice Grade, Exam, AcademicRecord with assessmentservice
+microservice Report, ReportDetail with reportservice
+
+paginate all with pagination
+dto all with mapstruct
+service all with serviceClass
