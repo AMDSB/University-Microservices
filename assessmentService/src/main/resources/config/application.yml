@@ -184,13 +184,21 @@ spring:
     oauth2:
       client:
         provider:
-          oidc:
-            issuer-uri: http://localhost:9080/realms/jhipster
+          keycloak:
+            issuer-uri: http://localhost:9080/auth/realms/jhipster
         registration:
-          oidc:
-            client-id: internal
-            client-secret: internal
-            scope: openid, profile, email, offline_access # last one for refresh tokens
+          keycloak:
+            client-id: assessmentService
+            client-secret: KMEP5tkd1jmQvdgml0j2A3PZ3kEzth9M
+            authorization-grant-type: client_credentials
+
+        #   oidc:
+        #     issuer-uri: http://localhost:9080/realms/jhipster
+        # registration:
+        #   oidc:
+        #     client-id: internal
+        #     client-secret: internal
+        #     scope: openid, profile, email, offline_access # last one for refresh tokens
   task:
     execution:
       thread-name-prefix: assessment-service-task-
