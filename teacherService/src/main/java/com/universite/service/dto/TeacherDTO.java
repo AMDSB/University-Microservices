@@ -12,6 +12,10 @@ public class TeacherDTO implements Serializable {
 
     private Long id;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> teacherService
     @NotNull
     private Integer idTeacher;
 
@@ -21,6 +25,21 @@ public class TeacherDTO implements Serializable {
 
     private DisponibiliteDTO idDisponibilite;
 
+<<<<<<< HEAD
+=======
+    private Integer idModule;
+
+
+    public Integer getIdModule() {
+        return idModule;
+    }
+
+    public void setIdModule(Integer idModule) {
+        this.idModule = idModule;
+    }
+
+
+>>>>>>> teacherService
     public Long getId() {
         return id;
     }
@@ -91,6 +110,11 @@ public class TeacherDTO implements Serializable {
             ", grade='" + getGrade() + "'" +
             ", specialite='" + getSpecialite() + "'" +
             ", idDisponibilite=" + getIdDisponibilite() +
+<<<<<<< HEAD
+=======
+            ", idModule=" + getIdModule() +
+
+>>>>>>> teacherService
             "}";
     }
 }

@@ -36,6 +36,13 @@ public class Teacher implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Disponibilite idDisponibilite;
 
+<<<<<<< HEAD
+=======
+    @Column(name = "module_id")
+    private Long moduleId;
+
+
+>>>>>>> teacherService
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
