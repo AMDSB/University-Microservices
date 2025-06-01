@@ -1,0 +1,33 @@
+{
+  "annotations": {
+    "changelogDate": "20250518174052"
+  },
+  "applications": ["moduleService"],
+  "clientRootFolder": "moduleservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "idSpecialisation",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    }
+  ],
+  "microserviceName": "moduleservice",
+  "name": "Specialisation",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "module",
+      "relationshipName": "idModule",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}
