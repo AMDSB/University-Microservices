@@ -187,7 +187,13 @@ spring:
           oidc:
             issuer-uri: http://localhost:9080/realms/jhipster
         registration:
+          #keycloak:
           oidc:
+            # client-id: reportService
+            # client-secret: wGQMaJ3zSfKnCBvmpk58DNASNpxja46Z
+            # authorization-grant-type: client_credentials
+            #scope: openid, profile, email, offline_access # last one for refresh tokens
+        
             client-id: internal
             client-secret: internal
             scope: openid, profile, email, offline_access # last one for refresh tokens

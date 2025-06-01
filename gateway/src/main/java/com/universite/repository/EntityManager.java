@@ -173,23 +173,29 @@ public class EntityManager {
      * @param referencedIds the id of the referred entities.
      * @return the number of inserted rows.
      */
-    public Mono<Long> updateLinkTable(LinkTable table, Object entityId, Stream<?> referencedIds) {
-        return deleteFromLinkTable(table, entityId).then(
-            Flux.fromStream(referencedIds)
-                .flatMap((Object referenceId) -> {
-                    StatementMapper.InsertSpec insert = r2dbcEntityTemplate
-                        .getDataAccessStrategy()
-                        .getStatementMapper()
-                        .createInsert(table.tableName)
-                        .withColumn(table.idColumn, Parameter.from(entityId))
-                        .withColumn(table.referenceColumn, Parameter.from(referenceId));
+public Mono<Long> updateLinkTable(LinkTable table, Object entityId, Stream<?> referencedIds) {
+    return deleteFromLinkTable(table, entityId).then(
+        Flux.fromStream(referencedIds)
+            .flatMap(referenceId -> {
+                StatementMapper.InsertSpec insert = r2dbcEntityTemplate
+                    .getDataAccessStrategy()
+                    .getStatementMapper()
+                    .createInsert(table.tableName)
+                    .withColumn(table.idColumn, Parameter.from(entityId))
+                    .withColumn(table.referenceColumn, Parameter.from(referenceId));
 
-                    return r2dbcEntityTemplate.getDatabaseClient().sql(statementMapper.getMappedObject(insert)).fetch().rowsUpdated();
-                })
-                .collectList()
-                .map((List<Long> updates) -> updates.stream().reduce(Long::sum).orElse(0l))
-        );
-    }
+                return r2dbcEntityTemplate
+                    .getDatabaseClient()
+                    .sql(statementMapper.getMappedObject(insert))
+                    .fetch()
+                    .rowsUpdated()
+                    .map(i -> Long.valueOf(i)); // ✅ conversion manuelle en Long
+            })
+            .reduce(Long.valueOf(0), Long::sum) // ✅ syntaxe compatible
+    );
+}
+
+
 
     public Mono<Void> deleteFromLinkTable(LinkTable table, Object entityId) {
         Assert.notNull(entityId, "entityId is null");

@@ -247,6 +247,24 @@ jhipster:
       audience:
         - account
         - api://default
+  
+  jhipster:
+  gateway:
+    routes:
+      - path: /api/reports/**
+        service-id: reportservice
+        url: "http://localhost:8086"
+        service-name: reportservice
+
+  
+  jhipster:
+  gateway:
+    routes:
+      - path: /api/assessments/**
+        service-id: assessmentservice
+        url: "http://localhost:8085"
+        service-name: assessmentservice
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
